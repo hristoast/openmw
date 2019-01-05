@@ -127,7 +127,6 @@ namespace
         if (id == "prisonmarker" || id == "divinemarker" || id == "templemarker" || id == "northmarker")
             return; // marker objects that have a hardcoded function in the game logic, should be hidden from the player
 
-        // TODO: set node rotation
         rendering.getObjects().insertDistantModel(ptr);
     }
 
