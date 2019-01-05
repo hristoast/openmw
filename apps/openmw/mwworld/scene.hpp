@@ -61,12 +61,14 @@ namespace MWWorld
 
             CellStore* mCurrentCell; // the cell the player is in
             CellStoreCollection mActiveCells;
+            CellStoreCollection mDistantCells;
             bool mCellChanged;
             MWPhysics::PhysicsSystem *mPhysics;
             MWRender::RenderingManager& mRendering;
             DetourNavigator::Navigator& mNavigator;
             std::unique_ptr<CellPreloader> mPreloader;
             float mPreloadTimer;
+            int mDistantLandDistance;
             int mHalfGridSize;
             float mCellLoadingThreshold;
             float mPreloadDistance;
@@ -79,7 +81,7 @@ namespace MWWorld
 
             osg::Vec3f mLastPlayerPos;
 
-            void insertCell (CellStore &cell, bool rescale, Loading::Listener* loadingListener);
+            void insertCell (CellStore &cell, bool rescale, Loading::Listener* loadingListener, bool distant);
 
             // Load and unload cells as necessary to create a cell grid with "X" and "Y" in the center
             void changeCellGrid (int playerCellX, int playerCellY, bool changeEvent = true);
@@ -101,8 +103,10 @@ namespace MWWorld
             void preloadCell(MWWorld::CellStore* cell, bool preloadSurrounding=false);
             void preloadTerrain(const osg::Vec3f& pos);
 
+            void unloadDistantCell (CellStoreCollection::iterator iter);
             void unloadCell (CellStoreCollection::iterator iter);
 
+            void loadDistantCell (CellStore *cell, Loading::Listener* loadingListener, bool respawn);
             void loadCell (CellStore *cell, Loading::Listener* loadingListener, bool respawn);
 
             void playerMoved (const osg::Vec3f& pos);
