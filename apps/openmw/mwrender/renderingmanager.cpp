@@ -506,6 +506,13 @@ namespace MWRender
         mSky->setSunDirection(position);
     }
 
+    void RenderingManager::addDistantCell(const MWWorld::CellStore *store)
+    {
+        mWater->changeCell(store);
+
+        if (store->getCell()->isExterior())
+            mTerrain->loadCell(store->getCell()->getGridX(), store->getCell()->getGridY());
+    }
     void RenderingManager::addCell(const MWWorld::CellStore *store)
     {
         mPathgrid->addCell(store);
@@ -525,6 +532,11 @@ namespace MWRender
             mTerrain->unloadCell(store->getCell()->getGridX(), store->getCell()->getGridY());
 
         mWater->removeCell(store);
+    }
+
+    void RenderingManager::removeDistantCell(const MWWorld::CellStore *store)
+    {
+        mObjects->removeDistantCell(store);
     }
 
     void RenderingManager::enableTerrain(bool enable)
