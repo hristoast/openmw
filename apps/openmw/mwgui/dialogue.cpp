@@ -339,6 +339,7 @@ namespace MWGui
 
         mTopicsList->adjustSize();
         updateHistory();
+        updateTopicFormat();
         mCurrentWindowSize = _sender->getSize();
     }
 
@@ -422,6 +423,7 @@ namespace MWGui
                 delete text;
             mHistoryContents.clear();
             mKeywords.clear();
+            mSpecificKeywords.clear();
             mTopicsList->clear();
             for (Link* link : mLinks)
                 mDeleteLater.push_back(link); // Links are not deleted right away to prevent issues with event handlers
@@ -448,7 +450,6 @@ namespace MWGui
         setTitle(mPtr.getClass().getName(mPtr));
 
         updateTopics();
-        updateTopicsPane(); // force update for new services
 
         updateDisposition();
         restock();
@@ -481,8 +482,14 @@ namespace MWGui
             return;
         mIsCompanion = isCompanion();
         mKeywords = keyWords;
+    }
 
-        updateTopicsPane();
+    void DialogueWindow::setSpecificKeywords(std::list<std::string> keyWords)
+    {
+        if (mSpecificKeywords == keyWords && isCompanion() == mIsCompanion)
+            return;
+        mIsCompanion = isCompanion();
+        mSpecificKeywords = keyWords;
     }
 
     void DialogueWindow::updateTopicsPane()
@@ -532,15 +539,16 @@ namespace MWGui
             mTopicsList->addSeparator();
 
 
-        for(std::string& keyword : mKeywords)
+        for(const std::string& keyword : mKeywords)
         {
+            std::string topicId = Misc::StringUtils::lowerCase(keyword);
             mTopicsList->addItem(keyword);
 
             Topic* t = new Topic(keyword);
             t->eventTopicActivated += MyGUI::newDelegate(this, &DialogueWindow::onTopicActivated);
-            mTopicLinks[Misc::StringUtils::lowerCase(keyword)] = t;
+            mTopicLinks[topicId] = t;
 
-            mKeywordSearch.seed(Misc::StringUtils::lowerCase(keyword), intptr_t(t));
+            mKeywordSearch.seed(topicId, intptr_t(t));
         }
         mTopicsList->adjustSize();
 
@@ -726,9 +734,47 @@ namespace MWGui
             updateHistory();
     }
 
+    void DialogueWindow::updateTopicFormat()
+    {
+
+        MyGUI::Colour defaultColour = MyGUI::Colour::parse(MyGUI::LanguageManager::getInstance().replaceTags("#{fontcolour=normal}"));
+        MyGUI::Colour specialColour = MyGUI::Colour::parse(MyGUI::LanguageManager::getInstance().replaceTags("#{fontcolour=special_topic}"));
+        MyGUI::Colour oldColour = MyGUI::Colour::parse(MyGUI::LanguageManager::getInstance().replaceTags("#{fontcolour=old_topic}")) ;
+
+
+        // Normally, each link change color when hovering, or after clicking.
+        // Since setTextColour() override all them, it is necessary to check that an override was defined by the user to keep this behavior in the normal case
+        if (specialColour != defaultColour)
+        {
+
+            for (const std::string& keyword : mSpecificKeywords)
+            {
+                MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
+                button->getSubWidgetText()->setTextColour(specialColour);
+            }
+        }
+
+        if (oldColour != defaultColour)
+        {
+            for(const std::string& keyword : mKeywords)
+            {
+                std::string topicId = Misc::StringUtils::lowerCase(keyword);
+                if ( !MWBase::Environment::get().getDialogueManager()->hasMoreAnswer(topicId))
+                {
+                    MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
+                    button->getSubWidgetText()->setTextColour(oldColour);
+                }
+            }
+        }
+
+    }
+
     void DialogueWindow::updateTopics()
     {
-        setKeywords(MWBase::Environment::get().getDialogueManager()->getAvailableTopics());
+        setKeywords(MWBase::Environment::get().getDialogueManager()->getAvailableTopics(false));
+        setSpecificKeywords(MWBase::Environment::get().getDialogueManager()->getAvailableTopics(true));
+        updateTopicsPane();
+        updateTopicFormat();
     }
 
     bool DialogueWindow::isCompanion()

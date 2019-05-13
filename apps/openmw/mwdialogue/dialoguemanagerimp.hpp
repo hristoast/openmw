@@ -30,6 +30,7 @@ namespace MWDialogue
             ModFactionReactionMap mChangedFactionReaction;
 
             std::set<std::string, Misc::StringUtils::CiComp> mActorKnownTopics;
+            std::set<std::string, Misc::StringUtils::CiComp> mActorSpecificTopics;
 
             Translation::Storage& mTranslationDataStorage;
             MWScript::CompilerContext mCompilerContext;
@@ -70,7 +71,9 @@ namespace MWDialogue
 
             virtual bool startDialogue (const MWWorld::Ptr& actor, ResponseCallback* callback);
 
-            std::list<std::string> getAvailableTopics();
+            std::list<std::string> getAvailableTopics(bool specific);
+
+            bool hasMoreAnswer (const std::string& topic);
 
             virtual void addTopic (const std::string& topic);
 
