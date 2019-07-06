@@ -252,7 +252,7 @@ namespace MWDialogue
             return true;
 
         // Check if there exist answers which are not in the journal
-        int nJournalizedAnswers = 0;
+        size_t nJournalizedAnswers = 0;
         for (const ESM::DialInfo* info : infos)
         {
             for(MWDialogue::Topic::TEntryIter it = topicHistory->begin(); it != topicHistory->end(); ++it)
