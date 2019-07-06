@@ -736,33 +736,31 @@ namespace MWGui
 
     void DialogueWindow::updateTopicFormat()
     {
+        std::string specialColour = Settings::Manager::getString("color topic special", "GUI");
+        std::string oldColour = Settings::Manager::getString("color topic old", "GUI");
 
-        MyGUI::Colour defaultColour = MyGUI::Colour::parse(MyGUI::LanguageManager::getInstance().replaceTags("#{fontcolour=normal}"));
-        MyGUI::Colour specialColour = MyGUI::Colour::parse(MyGUI::LanguageManager::getInstance().replaceTags("#{fontcolour=special_topic}"));
-        MyGUI::Colour oldColour = MyGUI::Colour::parse(MyGUI::LanguageManager::getInstance().replaceTags("#{fontcolour=old_topic}")) ;
-
-
-        // Normally, each link change color when hovering, or after clicking.
-        // Since setTextColour() override all them, it is necessary to check that an override was defined by the user to keep this behavior in the normal case
-        if (specialColour != defaultColour)
+        if (!specialColour.empty())
         {
+            MyGUI::Colour colour = MyGUI::Colour::parse(specialColour);
 
             for (const std::string& keyword : mSpecificKeywords)
             {
                 MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
-                button->getSubWidgetText()->setTextColour(specialColour);
+                button->getSubWidgetText()->setTextColour(colour);
             }
         }
 
-        if (oldColour != defaultColour)
+        if (!oldColour.empty())
         {
+            MyGUI::Colour colour = MyGUI::Colour::parse(oldColour);
+
             for(const std::string& keyword : mKeywords)
             {
                 std::string topicId = Misc::StringUtils::lowerCase(keyword);
                 if ( !MWBase::Environment::get().getDialogueManager()->hasMoreAnswer(topicId))
                 {
                     MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
-                    button->getSubWidgetText()->setTextColour(oldColour);
+                    button->getSubWidgetText()->setTextColour(colour);
                 }
             }
         }
