@@ -231,11 +231,6 @@ namespace MWDialogue
 
     bool DialogueManager::hasMoreAnswers (const std::string& topicId)
     {
-        // Find all the possible answers for the topic
-        const ESM::Dialogue *dialogue = searchDialogue(topicId);
-        Filter filter (mActor, mChoice, mTalkedTo);
-        std::vector<const ESM::DialInfo*> infos = filter.list(*dialogue, false, true);
-
         // Find the topic in the journal
         const MWDialogue::Topic *topicHistory = nullptr;
         MWBase::Journal *journal = MWBase::Environment::get().getJournal();
@@ -250,6 +245,11 @@ namespace MWDialogue
 
         if (!topicHistory)
             return true;
+
+        // Find all the possible answers for the topic
+        const ESM::Dialogue *dialogue = searchDialogue(topicId);
+        Filter filter (mActor, mChoice, mTalkedTo);
+        std::vector<const ESM::DialInfo*> infos = filter.list(*dialogue, false, true);
 
         // Check if there exist answers which are not in the journal
         size_t nJournalizedAnswers = 0;
