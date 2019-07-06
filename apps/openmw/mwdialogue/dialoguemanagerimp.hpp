@@ -73,7 +73,7 @@ namespace MWDialogue
 
             std::list<std::string> getAvailableTopics(bool specific);
 
-            bool hasMoreAnswer (const std::string& topic);
+            bool hasMoreAnswers (const std::string& topic);
 
             virtual void addTopic (const std::string& topic);
 

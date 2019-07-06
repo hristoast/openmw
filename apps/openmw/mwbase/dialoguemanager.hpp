@@ -53,7 +53,7 @@ namespace MWBase
 
             virtual bool startDialogue (const MWWorld::Ptr& actor, ResponseCallback* callback) = 0;
 
-            virtual bool hasMoreAnswer (const std::string& topic) = 0;
+            virtual bool hasMoreAnswers (const std::string& topic) = 0;
 
             virtual void addTopic (const std::string& topic) = 0;
 

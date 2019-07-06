@@ -229,7 +229,7 @@ namespace MWDialogue
         }
     }
 
-    bool DialogueManager::hasMoreAnswer (const std::string& topicId)
+    bool DialogueManager::hasMoreAnswers (const std::string& topicId)
     {
         // Find all the possible answers for the topic
         const ESM::Dialogue *dialogue = searchDialogue(topicId);

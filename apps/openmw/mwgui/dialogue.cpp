@@ -757,7 +757,7 @@ namespace MWGui
             for(const std::string& keyword : mKeywords)
             {
                 std::string topicId = Misc::StringUtils::lowerCase(keyword);
-                if ( !MWBase::Environment::get().getDialogueManager()->hasMoreAnswer(topicId))
+                if ( !MWBase::Environment::get().getDialogueManager()->hasMoreAnswers(topicId))
                 {
                     MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
                     button->getSubWidgetText()->setTextColour(colour);
