@@ -206,6 +206,7 @@
     Bug #5300: NPCs don't switch from torch to shield when starting combat
     Bug #5308: World map copying makes save loading much slower
     Feature #1774: Handle AvoidNode
+    Feature #2159: "Graying out" exhausted dialogue topics
     Feature #2229: Improve pathfinding AI
     Feature #3025: Analogue gamepad movement controls
     Feature #3442: Default values for fallbacks from ini file

@@ -123,7 +123,6 @@ namespace MWGui
         void setPtr(const MWWorld::Ptr& actor);
 
         void setKeywords(std::list<std::string> keyWord);
-        void setSpecificKeywords(std::list<std::string> keyWord);
 
         void addResponse (const std::string& title, const std::string& text, bool needMargin = true);
 
@@ -160,7 +159,6 @@ namespace MWGui
 
         bool mIsCompanion;
         std::list<std::string> mKeywords;
-        std::list<std::string> mSpecificKeywords;
 
         std::vector<DialogueText*> mHistoryContents;
         std::vector<std::pair<std::string, int> > mChoices;

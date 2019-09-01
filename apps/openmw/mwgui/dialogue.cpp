@@ -423,7 +423,6 @@ namespace MWGui
                 delete text;
             mHistoryContents.clear();
             mKeywords.clear();
-            mSpecificKeywords.clear();
             mTopicsList->clear();
             for (Link* link : mLinks)
                 mDeleteLater.push_back(link); // Links are not deleted right away to prevent issues with event handlers
@@ -482,14 +481,6 @@ namespace MWGui
             return;
         mIsCompanion = isCompanion();
         mKeywords = keyWords;
-    }
-
-    void DialogueWindow::setSpecificKeywords(std::list<std::string> keyWords)
-    {
-        if (mSpecificKeywords == keyWords && isCompanion() == mIsCompanion)
-            return;
-        mIsCompanion = isCompanion();
-        mSpecificKeywords = keyWords;
     }
 
     void DialogueWindow::updateTopicsPane()
@@ -736,41 +727,25 @@ namespace MWGui
 
     void DialogueWindow::updateTopicFormat()
     {
-        std::string specialColour = Settings::Manager::getString("color topic special", "GUI");
-        std::string oldColour = Settings::Manager::getString("color topic old", "GUI");
+        std::string specialColour = Settings::Manager::getString("color topic specific", "GUI");
+        std::string oldColour = Settings::Manager::getString("color topic exhausted", "GUI");
 
-        if (!specialColour.empty())
+        for (const std::string& keyword : mKeywords)
         {
-            MyGUI::Colour colour = MyGUI::Colour::parse(specialColour);
+            int flag = MWBase::Environment::get().getDialogueManager()->getTopicFlag(keyword);
+            MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
 
-            for (const std::string& keyword : mSpecificKeywords)
-            {
-                MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
-                button->getSubWidgetText()->setTextColour(colour);
-            }
+            if (!specialColour.empty() && flag & MWBase::DialogueManager::TopicType::Specific)
+                button->getSubWidgetText()->setTextColour(MyGUI::Colour::parse(specialColour));
+
+            if (!oldColour.empty() && flag & MWBase::DialogueManager::TopicType::Exhausted)
+                button->getSubWidgetText()->setTextColour(MyGUI::Colour::parse(oldColour));
         }
-
-        if (!oldColour.empty())
-        {
-            MyGUI::Colour colour = MyGUI::Colour::parse(oldColour);
-
-            for(const std::string& keyword : mKeywords)
-            {
-                std::string topicId = Misc::StringUtils::lowerCase(keyword);
-                if ( !MWBase::Environment::get().getDialogueManager()->hasMoreAnswers(topicId))
-                {
-                    MyGUI::Button* button = mTopicsList->getItemWidget(keyword);
-                    button->getSubWidgetText()->setTextColour(colour);
-                }
-            }
-        }
-
     }
 
     void DialogueWindow::updateTopics()
     {
-        setKeywords(MWBase::Environment::get().getDialogueManager()->getAvailableTopics(false));
-        setSpecificKeywords(MWBase::Environment::get().getDialogueManager()->getAvailableTopics(true));
+        setKeywords(MWBase::Environment::get().getDialogueManager()->getAvailableTopics());
         updateTopicsPane();
         updateTopicFormat();
     }

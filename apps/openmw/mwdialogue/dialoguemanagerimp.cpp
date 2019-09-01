@@ -121,7 +121,6 @@ namespace MWDialogue
         mTalkedTo = creatureStats.hasTalkedToPlayer();
 
         mActorKnownTopics.clear();
-        mActorSpecificTopics.clear();
 
         //greeting
         const MWWorld::Store<ESM::Dialogue> &dialogs =
@@ -229,9 +228,8 @@ namespace MWDialogue
         }
     }
 
-    bool DialogueManager::hasMoreAnswers (const std::string& topicId)
+    bool DialogueManager::inJournal (const std::string& topicId, const std::string& infoId)
     {
-        // Find the topic in the journal
         const MWDialogue::Topic *topicHistory = nullptr;
         MWBase::Journal *journal = MWBase::Environment::get().getJournal();
         for (MWBase::Journal::TTopicIter it = journal->topicBegin(); it != journal->topicEnd(); ++it)
@@ -244,24 +242,14 @@ namespace MWDialogue
         }
 
         if (!topicHistory)
-            return true;
+            return false;
 
-        // Find all the possible answers for the topic
-        const ESM::Dialogue *dialogue = searchDialogue(topicId);
-        Filter filter (mActor, mChoice, mTalkedTo);
-        std::vector<const ESM::DialInfo*> infos = filter.list(*dialogue, false, true);
-
-        // Check if there exist answers which are not in the journal
-        size_t nJournalizedAnswers = 0;
-        for (const ESM::DialInfo* info : infos)
+        for(MWDialogue::Topic::TEntryIter it = topicHistory->begin(); it != topicHistory->end(); ++it)
         {
-            for(MWDialogue::Topic::TEntryIter it = topicHistory->begin(); it != topicHistory->end(); ++it)
-            {
-                if (it->mInfoId == info->mId)
-                    ++nJournalizedAnswers;
-            }
+            if (it->mInfoId == infoId)
+                return true;
         }
-        return infos.size() != nJournalizedAnswers;
+        return false;
     }
 
     void DialogueManager::executeTopic (const std::string& topic, ResponseCallback* callback)
@@ -335,7 +323,6 @@ namespace MWDialogue
         updateGlobals();
 
         mActorKnownTopics.clear();
-        mActorSpecificTopics.clear();
 
         const MWWorld::Store<ESM::Dialogue> &dialogs =
             MWBase::Environment::get().getWorld()->getStore().get<ESM::Dialogue>();
@@ -346,34 +333,43 @@ namespace MWDialogue
         {
             if (iter->mType == ESM::Dialogue::Topic)
             {
-                if (filter.responseAvailable (*iter))
+                std::vector<const ESM::DialInfo *> answers = filter.list(*iter, false, true);
+                std::string topicId = Misc::StringUtils::lowerCase(iter->mId);
+
+                if (!answers.empty())
                 {
-                    // Does this dialogue contains some actor-specific answer?
-                    for (ESM::Dialogue::InfoContainer::const_iterator info = iter->mInfo.begin();
-                            info != iter->mInfo.end(); ++info)
+                    int nUnknownAnswers = 0;
+                    int flag = 0;
+                    for (const ESM::DialInfo* answer : answers)
                     {
-                        if (info->mActor == mActor.getCellRef().getRefId())
-                            mActorSpecificTopics.insert (iter->mId);
+                        if(!inJournal(topicId, answer->mId))
+                        {
+                            ++nUnknownAnswers;
+
+                            // Does this dialogue contains some actor-specific answer?
+                            if (answer->mActor == mActor.getCellRef().getRefId())
+                                flag |= MWBase::DialogueManager::TopicType::Specific;
+                        }
                     }
+
+                    if (nUnknownAnswers == 0)
+                        flag |= MWBase::DialogueManager::TopicType::Exhausted;
+
                     mActorKnownTopics.insert (iter->mId);
+                    mActorKnownTopicsFlag[iter->mId] = flag;
                 }
             }
         }
 
     }
 
-    std::list<std::string> DialogueManager::getAvailableTopics(bool specific)
+    std::list<std::string> DialogueManager::getAvailableTopics()
     {
         updateActorKnownTopics();
 
         std::list<std::string> keywordList;
-        std::set<std::string, Misc::StringUtils::CiComp>* topicList;
-        if (specific)
-            topicList = &mActorSpecificTopics;
-        else
-            topicList = &mActorKnownTopics;
 
-        for (const std::string& topic : *topicList)
+        for (const std::string& topic : mActorKnownTopics)
         {
             //does the player know the topic?
             if (mKnownTopics.count(topic))
@@ -383,6 +379,11 @@ namespace MWDialogue
         // sort again, because the previous sort was case-sensitive
         keywordList.sort(Misc::StringUtils::ciLess);
         return keywordList;
+    }
+
+    int DialogueManager::getTopicFlag(const std::string& topicId)
+    {
+        return mActorKnownTopicsFlag[topicId];
     }
 
     void DialogueManager::keywordSelected (const std::string& keyword, ResponseCallback* callback)

@@ -140,3 +140,35 @@ The alpha value is currently ignored.
 This setting can only be configured by editing the settings configuration file.
 This setting has no effect if the crosshair setting in the HUD Settings Section is false.
 This setting has no effect if the show owned setting in the Game Settings Section is false.
+
+color topic specific
+--------------------
+
+:Type:		RGBA floating point
+:Range:		0.0 to 1.0
+:Default:	empty
+
+This setting overrides the color of keywords in the dialogue topic window.
+The value is composed of four floating point values representing the red, green, blue and alpha channels.
+The alpha value is currently ignored.
+
+The override happens if:
+   #. the NPC has at least one answer that is specifically reserved to her (i.e. the Actor field contains its ID)
+   #. at least one of these answers was not already given to the player
+
+Note: that a specific answer is available doesn't mean the player will see it next time she clicks on the topic.
+
+color topic exhausted
+---------------------
+
+:Type:		RGBA floating point
+:Range:		0.0 to 1.0
+:Default:	empty
+
+This setting overrides the color of keywords in the dialogue topic window.
+The value is composed of four floating point values representing the red, green, blue and alpha channels.
+The alpha value is currently ignored.
+
+The override happens if all of the possible answers available to the NPC were already "heard" by the player.
+It is possible for some topics to *never* become exhausted, as even though an answer is theoritically available,
+the conditions necessary to see it makes it practically unreachable.
