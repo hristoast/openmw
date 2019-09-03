@@ -152,9 +152,7 @@ This setting overrides the color of keywords in the dialogue topic window.
 The value is composed of four floating point values representing the red, green, blue and alpha channels.
 The alpha value is currently ignored.
 
-The override happens if:
-   #. the NPC has at least one answer that is specifically reserved to her (i.e. the Actor field contains its ID)
-   #. at least one of these answers was not already given to the player
+The color is overriden if the actor still has some unique dialogue for the keyword (that is, dialogue with their object ID in the Actor field) that wasn't seen yet
 
 Note: that a specific answer is available doesn't mean the player will see it next time she clicks on the topic.
 
@@ -169,6 +167,6 @@ This setting overrides the color of keywords in the dialogue topic window.
 The value is composed of four floating point values representing the red, green, blue and alpha channels.
 The alpha value is currently ignored.
 
-The override happens if all of the possible answers available to the NPC were already "heard" by the player.
-It is possible for some topics to *never* become exhausted, as even though an answer is theoritically available,
-the conditions necessary to see it makes it practically unreachable.
+The color is overridden if all possible actor responses to the topic keyword has already been seen by the player.
+It is possible for some topics to *never* become exhausted, as even though an answer is theoretically available,
+its filtering conditions cannot be met.
