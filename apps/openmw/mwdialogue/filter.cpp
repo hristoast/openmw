@@ -25,21 +25,26 @@ bool MWDialogue::Filter::testActor (const ESM::DialInfo& info) const
 {
     bool isCreature = (mActor.getTypeName() != typeid (ESM::NPC).name());
 
-    // Creatures must not have topics aside of those specific to their id
-    if (isCreature)
-        return Misc::StringUtils::ciEqual(info.mActor, mActor.getCellRef().getRefId());
-
-    MWWorld::LiveCellRef<ESM::NPC> *cellRef = mActor.get<ESM::NPC>();
     // actor id
     if (!info.mActor.empty())
     {
         if ( !Misc::StringUtils::ciEqual(info.mActor, mActor.getCellRef().getRefId()))
             return false;
     }
+    else if (isCreature)
+    {
+        // Creatures must not have topics aside of those specific to their id
+        return false;
+    }
 
     // NPC race
     if (!info.mRace.empty())
     {
+        if (isCreature)
+            return true;
+
+        MWWorld::LiveCellRef<ESM::NPC> *cellRef = mActor.get<ESM::NPC>();
+
         if (!Misc::StringUtils::ciEqual(info.mRace, cellRef->mBase->mRace))
             return false;
     }
@@ -47,6 +52,11 @@ bool MWDialogue::Filter::testActor (const ESM::DialInfo& info) const
     // NPC class
     if (!info.mClass.empty())
     {
+        if (isCreature)
+            return true;
+
+        MWWorld::LiveCellRef<ESM::NPC> *cellRef = mActor.get<ESM::NPC>();
+
         if ( !Misc::StringUtils::ciEqual(info.mClass, cellRef->mBase->mClass))
             return false;
     }
@@ -54,11 +64,17 @@ bool MWDialogue::Filter::testActor (const ESM::DialInfo& info) const
     // NPC faction
     if (info.mFactionLess)
     {
+        if (isCreature)
+            return true;
+
         if (!mActor.getClass().getPrimaryFaction(mActor).empty())
             return false;
     }
     else if (!info.mFaction.empty())
     {
+        if (isCreature)
+            return true;
+
         if (!Misc::StringUtils::ciEqual(mActor.getClass().getPrimaryFaction(mActor), info.mFaction))
             return false;
 
@@ -68,6 +84,9 @@ bool MWDialogue::Filter::testActor (const ESM::DialInfo& info) const
     }
     else if (info.mData.mRank != -1)
     {
+        if (isCreature)
+            return true;
+
         // Rank requirement, but no faction given. Use the actor's faction, if there is one.
         // check rank
         if (mActor.getClass().getPrimaryFactionRank(mActor) < info.mData.mRank)
@@ -75,9 +94,12 @@ bool MWDialogue::Filter::testActor (const ESM::DialInfo& info) const
     }
 
     // Gender
-    if (info.mData.mGender != -1)
-        if (info.mData.mGender==(cellRef->mBase->mFlags & ESM::NPC::Female ? 0 : 1))
+    if (!isCreature)
+    {
+        MWWorld::LiveCellRef<ESM::NPC>* npc = mActor.get<ESM::NPC>();
+        if (info.mData.mGender==(npc->mBase->mFlags & npc->mBase->Female ? 0 : 1))
             return false;
+    }
 
     return true;
 }
