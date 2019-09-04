@@ -737,8 +737,7 @@ namespace MWGui
 
             if (!specialColour.empty() && flag & MWBase::DialogueManager::TopicType::Specific)
                 button->getSubWidgetText()->setTextColour(MyGUI::Colour::parse(specialColour));
-
-            if (!oldColour.empty() && flag & MWBase::DialogueManager::TopicType::Exhausted)
+            else if (!oldColour.empty() && flag & MWBase::DialogueManager::TopicType::Exhausted)
                 button->getSubWidgetText()->setTextColour(MyGUI::Colour::parse(oldColour));
         }
     }
