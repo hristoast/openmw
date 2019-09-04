@@ -152,9 +152,9 @@ This setting overrides the color of keywords in the dialogue topic window.
 The value is composed of four floating point values representing the red, green, blue and alpha channels.
 The alpha value is currently ignored.
 
-The color is overriden if the actor still has some unique dialogue for the keyword (that is, dialogue with their object ID in the Actor field) that wasn't seen yet
+The color is overriden if the actor still has some unique dialogue for the keyword (that is, dialogue with their object ID in the Actor field) that wasn't seen yet.
 
-Note: that a specific answer is available doesn't mean the player will see it next time she clicks on the topic.
+Note that this unique dialogue may not necessarily be triggered when you click on the topic keyword.
 
 color topic exhausted
 ---------------------
