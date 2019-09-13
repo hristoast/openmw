@@ -333,7 +333,7 @@ namespace MWDialogue
         {
             if (iter->mType == ESM::Dialogue::Topic)
             {
-                std::vector<const ESM::DialInfo *> answers = filter.list(*iter, false, true);
+                std::vector<const ESM::DialInfo *> answers = filter.list(*iter, true, true);
                 std::string topicId = Misc::StringUtils::lowerCase(iter->mId);
 
                 if (!answers.empty())
